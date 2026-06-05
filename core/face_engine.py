@@ -84,7 +84,7 @@ class FaceEngine:
                     best_match    = name
 
             cfg       = json.load(open(CONFIG_PATH))
-            threshold = cfg.get("tolerance", 0.4) * 100
+            threshold = cfg.get("tolerance", 0.4) 
 
             if best_distance <= threshold:
                 return "authorized", best_match
