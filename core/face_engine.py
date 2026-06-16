@@ -64,36 +64,71 @@ class FaceEngine:
             return "no_faces_enrolled", None
 
         try:
-            embedding = DeepFace.represent(
-                img_path         = image_path,
-                model_name       = MODEL,
-                detector_backend = DETECTOR,
-                enforce_detection = True
-            )
-            live_vector = np.array(embedding[0]["embedding"])
-
-            best_match    = None
-            best_distance = float("inf")
-
+            import tempfile
+            import shutil
+            
+            # IMPORTANT: First check if there's actually a face in the image
+            # We do NOT treat empty frames as unauthorized/intruders
+            # Empty frames should be ignored, not flagged as threats
+            try:
+                face_objs = DeepFace.extract_faces(
+                    img_path=image_path,
+                    detector_backend=DETECTOR,
+                    enforce_detection=True
+                )
+                if not face_objs or len(face_objs) == 0:
+                    # No face detected - return early without flagging as intruder
+                    return "no_face", None
+            except Exception:
+                # Exception during face detection - return early without flagging as intruder
+                return "no_face", None
+            
+            # Create a temporary database folder for known faces
+            temp_db = tempfile.mkdtemp()
+            
+            # Copy enrolled faces to temp db
             for name, data in self.known_faces.items():
-                known_vector = np.array(data["embedding"])
-                distance     = np.linalg.norm(live_vector - known_vector)
-
-                if distance < best_distance:
-                    best_distance = distance
-                    best_match    = name
-
-            cfg       = json.load(open(CONFIG_PATH))
-            threshold = cfg.get("tolerance", 0.4) 
-
-            if best_distance <= threshold:
-                return "authorized", best_match
+                src = data["image_path"]
+                dst = os.path.join(temp_db, f"{name}.jpg")
+                if os.path.exists(src):
+                    shutil.copy(src, dst)
+            
+            # Find matches in database
+            dfs = DeepFace.find(
+                img_path=image_path,
+                db_path=temp_db,
+                model_name=MODEL,
+                detector_backend=DETECTOR,
+                enforce_detection=False,
+                silent=True
+            )
+            
+            shutil.rmtree(temp_db)
+            
+            # If no matches found and a face WAS detected, then it's an unauthorized person (intruder)
+            if dfs is None or len(dfs) == 0 or len(dfs[0]) == 0:
+                return "intruder", None
+            
+            # Get best match
+            matches = dfs[0]
+            best_match = matches.iloc[0]
+            distance = best_match["distance"]
+            identity = best_match["identity"]
+            
+            # Extract name from path
+            name = os.path.basename(identity).split(".")[0]
+            
+            cfg = json.load(open(CONFIG_PATH))
+            threshold = cfg.get("tolerance", 0.6)
+            
+            if distance <= threshold:
+                return "authorized", name
             else:
                 return "intruder", None
 
-        except Exception:
+        except Exception as e:
             return "no_face", None
-
+        
     def remove_face(self, name: str) -> tuple:
         if name not in self.known_faces:
             return False, f"'{name}' not found."
