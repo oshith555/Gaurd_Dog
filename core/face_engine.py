@@ -31,6 +31,7 @@ class FaceEngine:
             print("[FaceEngine] No face data found. Starting fresh.")
 
     def _save_faces(self):
+        # Persist the enrolled faces cache to disk so known faces survive restarts.
         with open(DATA_FILE, "wb") as f:
             pickle.dump(self.known_faces, f)
         print(f"[FaceEngine] Saved {len(self.known_faces)} face(s).")
