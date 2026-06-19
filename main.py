@@ -126,19 +126,9 @@ class Scanner:
         self._last_seen = None
 
     def _handle_no_face(self, cfg: dict):
-        if self._last_seen is None:
-            return
-
-        idle_minutes = cfg.get("idle_time_minutes", 5)
-        elapsed      = (
-            datetime.now() - self._last_seen
-        ).total_seconds() / 60
-
-        if elapsed >= idle_minutes and not self._idle_notified:
-            print(f"[Scanner] Idle for {elapsed:.1f} min — triggering action.")
-            write_log("idle", None, f"No face for {idle_minutes} min")
-            trigger_action()
-            self._idle_notified = True
+        # Reset idle timer when no face is detected
+        self._last_seen = datetime.now()
+        self._idle_notified = False
 
 
 def run_tray(scanner, app):
