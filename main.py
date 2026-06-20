@@ -10,7 +10,15 @@ ROOT = os.path.dirname(__file__)
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-CONFIG_PATH = os.path.join(ROOT, "config.json")
+# For PyInstaller bundled apps, use the temp folder
+if getattr(sys, 'frozen', False):
+    # Running as executable
+    CONFIG_PATH = os.path.join(os.path.expanduser("~"), ".guard_dog", "config.json")
+else:
+    # Running as script
+    CONFIG_PATH = os.path.join(ROOT, "config.json")
+
+os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
 
 from core.face_engine import FaceEngine
 from core.screenshot  import capture_from_camera, save_screenshot

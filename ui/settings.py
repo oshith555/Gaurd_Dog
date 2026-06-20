@@ -5,7 +5,16 @@ import tkinter as tk
 from tkinter import messagebox, filedialog
 
 ROOT        = os.path.dirname(os.path.dirname(__file__))
-CONFIG_PATH = os.path.join(ROOT, "config.json")
+
+# For PyInstaller bundled apps, use the temp folder
+if getattr(sys, 'frozen', False):
+    # Running as executable
+    CONFIG_PATH = os.path.join(os.path.expanduser("~"), ".guard_dog", "config.json")
+else:
+    # Running as script
+    CONFIG_PATH = os.path.join(ROOT, "config.json")
+
+os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
 
 # Colors
 BG       = "#0d0f14"

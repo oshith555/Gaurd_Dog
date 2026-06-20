@@ -1,16 +1,36 @@
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
+# Virtual environments
 venv/
 env/
-*.log
-data/faces/*.jpg
+ENV/
+.venv
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.class
+*.so
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+data/intruders/*.png
 data/intruders/*.jpg
 data/intruders/*.jpeg
 *.pkl
-.DS_Store
-*.egg-info/
-dist/
+.env
+config.json
+venv/
+data/faces/
+
+# PyInstaller and build outputs
+Guard_Dog.spec
 build/
+dist/

@@ -1,17 +1,31 @@
 import os
+import sys
 import json
 import tkinter as tk
 from tkinter import messagebox
 from datetime import datetime
 
-ROOT      = os.path.dirname(os.path.dirname(__file__))
-LOGS_FILE = os.path.join(ROOT, "data", "activity_log.json")
+# ──────────────────────────────────────────────────────────────────────────────
+# PYINSTALLER FIX: Handle paths for both script and executable modes
+# ──────────────────────────────────────────────────────────────────────────────
+if getattr(sys, 'frozen', False):
+    # Running as PyInstaller executable
+    CONFIG_DIR = os.path.expanduser("~/.guard_dog")
+else:
+    # Running as Python script
+    ROOT = os.path.dirname(os.path.dirname(__file__))
+    CONFIG_DIR = ROOT
+
+LOGS_FILE = os.path.join(CONFIG_DIR, "data", "activity_log.json")
+os.makedirs(os.path.dirname(LOGS_FILE), exist_ok=True)
+
+# ──────────────────────────────────────────────────────────────────────────────
 
 # Colors
 BG       = "#0d0f14"
 BG2      = "#161920"
 BG3      = "#1e2230"
-ACCENT   = "#00e676"
+ACCENT   = "#4ECDC4"
 DANGER   = "#ff1744"
 ACCENT2  = "#00b0ff"
 TEXT     = "#e8eaf6"
@@ -169,16 +183,12 @@ class LogsTab(tk.Frame):
 
             if event == "owner":
                 icon  = "👑"
-                color = ACCENT
             elif event == "authorized":
                 icon  = "✓"
-                color = ACCENT2
             elif event == "intruder":
                 icon  = "⚠"
-                color = DANGER
             else:
                 icon  = "•"
-                color = TEXT_DIM
 
             self._listbox.insert(
                 tk.END,
