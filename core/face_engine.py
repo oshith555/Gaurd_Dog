@@ -68,9 +68,7 @@ class FaceEngine:
             import tempfile
             import shutil
             
-            # IMPORTANT: First check if there's actually a face in the image
-            # We do NOT treat empty frames as unauthorized/intruders
-            # Empty frames should be ignored, not flagged as threats
+            # First check if there's actually a face in the image
             try:
                 face_objs = DeepFace.extract_faces(
                     img_path=image_path,
@@ -78,10 +76,8 @@ class FaceEngine:
                     enforce_detection=True
                 )
                 if not face_objs or len(face_objs) == 0:
-                    # No face detected - return early without flagging as intruder
                     return "no_face", None
             except Exception:
-                # Exception during face detection - return early without flagging as intruder
                 return "no_face", None
             
             # Create a temporary database folder for known faces
@@ -106,7 +102,6 @@ class FaceEngine:
             
             shutil.rmtree(temp_db)
             
-            # If no matches found and a face WAS detected, then it's an unauthorized person (intruder)
             if dfs is None or len(dfs) == 0 or len(dfs[0]) == 0:
                 return "intruder", None
             
@@ -116,11 +111,12 @@ class FaceEngine:
             distance = best_match["distance"]
             identity = best_match["identity"]
             
-            # Extract name from path
-            name = os.path.basename(identity).split(".")[0]
+            # Extract name from path - handle different path separators
+            identity_str = str(identity)
+            name = identity_str.replace("\\", "/").split("/")[-1].split(".")[0]
             
             cfg = json.load(open(CONFIG_PATH))
-            threshold = cfg.get("tolerance", 0.6)
+            threshold = cfg.get("tolerance", 0.45)
             
             if distance <= threshold:
                 return "authorized", name
