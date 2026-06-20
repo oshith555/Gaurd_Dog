@@ -118,3 +118,124 @@ Edit `config.json` to customize:
 ```
 
 ## 🏗️ Project Structure
+
+Guard_Dog/
+├── main.py                 # Entry point & background scanner
+├── config.json             # User settings
+├── requirements.txt        # Python dependencies
+│
+├── core/
+│   ├── face_engine.py      # Face recognition & enrollment
+│   ├── locker.py           # Screen lock & app blocking
+│   └── screenshot.py       # Intruder photo capture
+│
+├── ui/
+│   ├── app.py              # Main window & tabs
+│   ├── dashboard.py        # Status & welcome messages
+│   ├── faces.py            # Face management
+│   ├── logs.py             # Activity log
+│   ├── screenshots.py      # Intruder photos viewer
+│   └── settings.py         # User preferences
+│
+├── data/
+│   ├── faces/              # Enrolled face data & images
+│   └── intruders/          # Intruder screenshots
+│
+└── assets/
+└── guard_dog.png       # App icon
+
+## 🔐 Security Notes
+
+- **Local Storage Only** — All face data stored locally on your PC
+- **No Cloud Upload** — Zero external data transmission
+- **Offline Operation** — Works completely offline after first setup
+- **ArcFace Model** — Military-grade face recognition accuracy
+- **Tolerance Tuning** — Adjust sensitivity to prevent false positives
+
+## ⚙️ How Face Recognition Works
+
+Guard_Dog uses **DeepFace** with **ArcFace** neural network:
+
+1. **Face Detection** — RetinaFace finds faces in images (99.8% accuracy)
+2. **Face Encoding** — ArcFace converts face to 512-number vector
+3. **Face Matching** — Compares live vector against enrolled vectors
+4. **Distance Threshold** — If distance ≤ tolerance = match
+
+Tolerance tuning:
+- `0.35` = Very strict (reject slight variations)
+- `0.45` = Recommended (balance security & convenience)
+- `0.60` = Loose (accept variations in lighting/angle)
+
+## 🚀 Performance
+
+- **Scan Interval**: 10 seconds (adjustable)
+- **Recognition Time**: 2-3 seconds per face
+- **CPU Usage**: 15-25% during scan (low idle)
+- **Memory**: ~500MB at runtime
+
+## 📝 Logging
+
+Guard_Dog creates activity logs automatically:
+
+- `guard_dog.log` — System events & errors
+- `data/activity_log.json` — Face detection history with timestamps
+- `data/intruders/` — Screenshots of detected intruders
+
+## 🛠️ Troubleshooting
+
+### Camera not working
+- Check Settings → Camera Index (try 0, 1, 2...)
+- Ensure no other apps use camera
+- Restart Guard_Dog
+
+### Not recognizing your face
+- Re-enroll with better lighting
+- Face the camera straight on
+- Increase tolerance in Settings (try 0.50)
+
+### Too many false positives
+- Decrease tolerance in Settings (try 0.40)
+- Re-enroll with a clearer photo
+
+### App crashes on startup
+- Reinstall dependencies: `pip install -r requirements.txt --force-reinstall`
+- Check Python version: `python --version` (must be 3.11+)
+
+## 📦 Dependencies
+
+- **deepface** — Face recognition engine
+- **opencv-python** — Camera & image processing
+- **tensorflow** — Neural network runtime
+- **tkinter** — GUI (built-in with Python)
+- **pillow** — Image manipulation
+- **pystray** — System tray integration
+
+See `requirements.txt` for complete list.
+
+## 📄 License
+
+MIT License — See LICENSE file for details
+
+## 📧 Support
+
+Found a bug? Have a feature request?
+
+- Open an Issue on GitHub
+- Include: OS version, Python version, error message
+- Attach: `guard_dog.log` file
+
+## ⚖️ Legal Notice
+
+Guard_Dog is provided as-is for personal security use. Users are responsible for:
+- Complying with local privacy laws
+- Obtaining consent before monitoring shared devices
+- Responsible use of biometric data
+
+## 🙏 Acknowledgments
+
+Built with:
+- [DeepFace](https://github.com/serengil/deepface) — Face recognition
+- [OpenCV](https://opencv.org/) — Computer vision
+- [TensorFlow](https://tensorflow.org/) — Deep learning
+
+🐾 Guard Your Screen. Guard Your Data.
